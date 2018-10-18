@@ -1,3 +1,5 @@
+#coding=utf-8
+
 import utilities
 
 class MMSeg:
@@ -63,17 +65,33 @@ class MMSeg:
     def __bmm_cut(self, sent):
         """ 使用bmm(反向最大匹配算法)切分句子
         """
+        result = []
         # TODO: backward
-        pass
+        return result
 
     def __bimm_cut(self, sent):
         """ 使用bi-mm(双向最大匹配算法)切分句子
         """
-         # TODO: bidirectional
-        pass
+        result = []
+        # TODO: bidirectional
+        return result
 
 if __name__ == '__main__':
     s = "本报南昌讯记者鄢卫华报道：１７日上午，由本报和圣象·康树联合主办的瓦尔德内尔挑战赛在南昌圆满落幕。"
+
     seg = MMSeg("dict.json", 'utf-16')
-    for word in seg.cut(s):
+
+    # FMM前向算法测试
+    print("----- FMM前向算法分词结果 -----")
+    for word in seg.cut(s, mode='fmm'):
+        print(word,end="/")
+    
+    # BMM后向算法测试
+    print("----- BMM后向算法分词结果 -----")
+    for word in seg.cut(s, mode='bmm'):
+        print(word,end="/")
+    
+    # MM双向算法测试
+    print("----- MM双向算法分词结果 -----")
+    for word in seg.cut(s, mode='bimm'):
         print(word,end="/")
