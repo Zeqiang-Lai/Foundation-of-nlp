@@ -1,5 +1,3 @@
 .DS_Store
 assignment1/__pycache__/*
-assignment1/dicts/*
-assignment1/datasets/*
 .vscode/*
