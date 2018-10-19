@@ -1,6 +1,6 @@
 #coding=utf-8
 
-import utilities
+import dict_generator
 
 class MMSeg:
     """ 基于最大匹配法(Maximum Matching)的中文分词器.
@@ -19,7 +19,8 @@ class MMSeg:
     def load_dict(self):
         """ 手动加载初始化时提供的词典.
         """
-        self.corpus_dict = utilities.json_read(self.dict_path, encoding=self.dict_encoding)
+        self.corpus_dict = dict_generator.json_read(self.dict_path, 
+                                                    encoding=self.dict_encoding)
 
     def cut(self, sent, mode='fmm'):
         """ 切分给定字符串,返回切分结果.
@@ -75,23 +76,26 @@ class MMSeg:
         result = []
         # TODO: bidirectional
         return result
-
+        
 if __name__ == '__main__':
     s = "本报南昌讯记者鄢卫华报道：１７日上午，由本报和圣象·康树联合主办的瓦尔德内尔挑战赛在南昌圆满落幕。"
+    print("原始句子:" + s + "\n")
 
-    seg = MMSeg("dict.json", 'utf-16')
-
+    seg = MMSeg("dicts/dict.json", 'utf-16')
     # FMM前向算法测试
     print("----- FMM前向算法分词结果 -----")
     for word in seg.cut(s, mode='fmm'):
         print(word,end="/")
-    
+    print()
+
     # BMM后向算法测试
     print("----- BMM后向算法分词结果 -----")
     for word in seg.cut(s, mode='bmm'):
         print(word,end="/")
-    
+    print()
+
     # MM双向算法测试
     print("----- MM双向算法分词结果 -----")
     for word in seg.cut(s, mode='bimm'):
         print(word,end="/")
+    print()
