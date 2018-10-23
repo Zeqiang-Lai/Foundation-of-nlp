@@ -30,7 +30,7 @@ class MMSeg:
               mode: 选择不同的切分算法,可选值有:'fmm','bmm','bimm'.
 
             Returns:
-              切分结果,一个元组,包含切分出来的各个词语.
+              切分结果,一个列表,包含切分出来的各个词语.
         """
         if(mode not in ['fmm', 'bmm', 'bimm']):
             raise ValueError("invalid value for mode, only accept 'fmm', 'bmm' and 'bimm'")
