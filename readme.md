@@ -36,10 +36,10 @@ python3 dict_generator.py --corpus_path datasets/train.txt --dict_path dicts/dic
 ### 选做: 命名实体识别
 
 ### 遇到的问题
-生成字典的时候，需要根据数据集提取词语。
 
-山西数据集是用空格进行分割，但又不是一个空格，因此不能用方法1进行切割。
+1. 山西分词语料库的读取问题
 
+生成字典的时候，需要根据数据集提取词语。山西数据集是用空格进行分割，但又不是一个空格，因此不能用方法1进行切割。
 使用方法2，`split()`默认分割方式为任何空白，因此能够正确分割。
 
 ```python
@@ -49,3 +49,12 @@ line.strip().split(' ')    # 错误
 line.strip().split()    #正确
 ```
 
+2. 人民日报语料库的编码问题
+
+通过文本编辑器查看人民日报语料库的编码时，其显示为`gb2312`，但在python中使用该编码进行读取会出现如下错误
+
+```
+UnicodeDecodeError: 'gb2312' codec can't decode byte 0xe9 in position 7524: illegal multibyte sequence
+```
+
+改为使用`gbk`编码进行解码，则能够正确读取。
