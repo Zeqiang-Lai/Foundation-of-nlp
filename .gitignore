@@ -3,3 +3,9 @@ assignment1/__pycache__/*
 .vscode/*
 assignment1/segmentation/dicts/*
 assignment1/segmentation/datasets/*
+__pycache__
+.idea
+.vscode
+datasets
+dicts
+pku_seg

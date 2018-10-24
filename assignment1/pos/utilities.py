@@ -18,6 +18,30 @@ def load_renmin(ds_path, encoding='gbk'):
 
     return corpus
 
+def index_corpus(corpus):
+    obsv2idx, idx2obsv = {}, {}
+    hide2idx, idx2hide = {}, {}
+    obsv_idx, hide_idx = 0, 0 
+
+    # build dictionaries and indexing
+    idxed_corpus = []
+    for seq in corpus:
+        idxed_seq = []
+        for obsv, hide in seq:
+            if obsv not in obsv2idx.keys():
+                obsv2idx[obsv] = obsv_idx
+                idx2obsv[obsv_idx] = obsv
+                obsv_idx += 1
+            if hide not in hide2idx.keys():
+                hide2idx[hide] = hide_idx
+                idx2hide[hide_idx] = hide
+                hide_idx += 1
+            # indexing
+            idxed_seq.append((obsv2idx[obsv], hide2idx[hide]))
+        idxed_corpus.append(idxed_seq)
+    
+    return idxed_corpus, (obsv2idx, idx2obsv), (hide2idx, idx2hide)
+
 if __name__ == '__main__':
     corpus = load_renmin('datasets/199801.txt')
     print(corpus[:3])

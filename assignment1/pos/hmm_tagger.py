@@ -18,30 +18,6 @@ class HmmTagger:
         idxed_corpus = self.__index_corpus(corpus)
         # self.hmm.setup()
 
-    def __index_corpus(self, corpus):
-        self.obsv2idx, self.idx2obsv = {}, {}
-        self.hide2idx, self.idx2hide = {}, {}
-        obsv_idx, hide_idx = 0, 0 
-
-        # build dictionaries and indexing
-        idxed_corpus = []
-        for seq in corpus:
-            idxed_seq = []
-            for obsv, hide in seq:
-                if obsv not in self.obsv2idx.keys():
-                    self.obsv2idx[obsv] = obsv_idx
-                    self.idx2obsv[obsv_idx] = obsv
-                    obsv_idx += 1
-                if hide not in self.hide2idx.keys():
-                    self.hide2idx[hide] = hide_idx
-                    self.idx2hide[hide_idx] = hide
-                    hide_idx += 1
-                # indexing
-                idxed_seq.append((self.obsv2idx[obsv], self.hide2idx[hide]))
-            idxed_corpus.append(idxed_seq)
-        
-        return idxed_corpus
-
     def tag(self, sentence):
         """ 对给定句子进行词性标注,需要提前分词.
 
