@@ -1,7 +1,9 @@
 # coding=utf-8
 
+import sys
+sys.path.append('..')
 import utilities
-import hmm
+from shared import hmm
 
 class HmmTagger:
     """ 采用隐式马尔可夫模型的中文词性标注器
