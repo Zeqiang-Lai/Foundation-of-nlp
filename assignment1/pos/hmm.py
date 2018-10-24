@@ -1,7 +1,9 @@
 # coding=utf-8
 
 import numpy as np
+import os
 import utilities
+import pickle
 
 class Hmm:
     """ 通用隐式马尔可夫模型.
@@ -61,11 +63,12 @@ class Hmm:
 class HmmMatBuilder():
     """ 该类包含构建隐式马尔可夫模型所需矩阵的函数.
     """
-    def __init__(self, corpus, num_obsv, num_hide):
+    def __init__(self, corpus=None, num_obsv=None, num_hide=None):
         """ 初始化
             
             Args:
-              corpus: 数据集
+              corpus: 数据集,注意格式要求,不满足要求的话,
+                      可以通过``index_corpus``函数进行编码.
               num_obsv: 观察状态数
               num_hide: 隐藏状态数
 
@@ -78,14 +81,18 @@ class HmmMatBuilder():
         self.corpus = corpus
         self.num_obsv = num_obsv
         self.num_hide = num_hide
+        if num_obsv != None and num_hide != None:
+            self.sp_mat = np.zeros(self.num_hide)
+            self.tp_mat = np.zeros([self.num_hide, self.num_hide])
+            self.ep_mat = np.zeros([self.num_obsv, self.num_hide])
+        else:
+            self.sp_mat = None
+            self.tp_mat = None
+            self.ep_mat = None
 
     def build(self):
         """ 构建初始概率矩阵,转移概率矩阵以及发射概率矩阵.
         """
-        self.sp_mat = np.zeros(self.num_hide)
-        self.tp_mat = np.zeros([self.num_hide, self.num_hide])
-        self.ep_mat = np.zeros([self.num_obsv, self.num_hide])
-
         for seq in self.corpus:
             for i in range(len(seq)):
                 obsv_cur, hide_cur = seq[i]
@@ -111,22 +118,100 @@ class HmmMatBuilder():
         # self.tp_mat *= 1e3
         # self.ep_mat *= 1e3
 
-
-    def save(self):
-        pass
+    def save(self, path):
+        """ 保存隐式马尔可夫模型 """
+        np.save(os.path.join(path, "start.npy"), self.sp_mat)
+        np.save(os.path.join(path, "trans.npy"), self.tp_mat)
+        np.save(os.path.join(path, "emit.npy"), self.ep_mat)
     
-    def load(self):
-        pass
+    def load(self, path):
+        """ 加载隐式马尔可夫模型 """
+        self.sp_mat = np.load(os.path.join(path, "start.npy"))
+        self.tp_mat = np.load(os.path.join(path, "trans.npy"))
+        self.ep_mat = np.load(os.path.join(path, "emit.npy"))
+        self.num_obsv = self.ep_mat.shape[0]
+        self.num_hide = self.ep_mat.shape[1]
+
+def index_corpus(corpus):
+    """ 将数据集进行编码
+
+        Args:
+          corpus: 格式必须为[[(obsv, hide), (obsv,hide),...], ...]
+
+        Returns:
+          idxed_corpus: 编码后的corpus,格式不变
+          (obsv2idx, idx2obsv): 两个dict用于观察值与其编码之间的转换
+          (hide2idx, idx2hide): 两个dict用于隐藏值与其编码之间的转换
+    """
+    obsv2idx, idx2obsv = {}, {}
+    hide2idx, idx2hide = {}, {}
+    obsv_idx, hide_idx = 0, 0 
+
+    # build dictionaries and indexing
+    idxed_corpus = []
+    for seq in corpus:
+        idxed_seq = []
+        for obsv, hide in seq:
+            if obsv not in obsv2idx.keys():
+                obsv2idx[obsv] = obsv_idx
+                idx2obsv[obsv_idx] = obsv
+                obsv_idx += 1
+            if hide not in hide2idx.keys():
+                hide2idx[hide] = hide_idx
+                idx2hide[hide_idx] = hide
+                hide_idx += 1
+            # indexing
+            idxed_seq.append((obsv2idx[obsv], hide2idx[hide]))
+        idxed_corpus.append(idxed_seq)
+    
+    return idxed_corpus, (obsv2idx, idx2obsv), (hide2idx, idx2hide)
+
+def save_dicts(dicts, path):
+    """ 保存四个dict至json文件 """
+    obsv2idx, idx2obsv, hide2idx, idx2hide = dicts
+    with open(os.path.join(path, "obsv2idx.p"), "wb") as f:
+        pickle.dump(obsv2idx, f)
+    with open(os.path.join(path, "idx2obsv.p"), "wb") as f:
+        pickle.dump(idx2obsv, f)
+    with open(os.path.join(path, "hide2idx.p"), "wb") as f:
+        pickle.dump(hide2idx, f)
+    with open(os.path.join(path, "idx2hide.p"), "wb") as f:
+        pickle.dump(idx2hide, f)
+
+def load_dicts(path):
+    """ 读取四个dict """
+    obsv2idx = None
+    idx2obsv = None
+    hide2idx = None
+    idx2hide = None
+    with open(os.path.join(path, "obsv2idx.p"), "rb") as f:
+        obsv2idx = pickle.load(f)
+    with open(os.path.join(path, "idx2obsv.p"), "rb") as f:
+        idx2obsv = pickle.load(f)
+    with open(os.path.join(path, "hide2idx.p"), "rb") as f:
+        hide2idx = pickle.load(f)
+    with open(os.path.join(path, "idx2hide.p"), "rb") as f:
+        idx2hide = pickle.load(f)
+
+    return obsv2idx, idx2obsv, hide2idx, idx2hide
 
 if __name__ == '__main__':
-    corpus_path = 'datasets/199801.txt'
-    corpus = utilities.load_renmin(corpus_path)
-    idxed_corpus, (obsv2idx, idx2obsv), (hide2idx, idx2hide) = utilities.index_corpus(corpus)
-    builder = HmmMatBuilder(idxed_corpus, len(obsv2idx.keys()),len(hide2idx.keys()))
-    builder.build()
+    # corpus_path = 'datasets/199801.txt'
+    # corpus = utilities.load_renmin(corpus_path)
+    # idxed_corpus, (obsv2idx, idx2obsv), (hide2idx, idx2hide) = index_corpus(corpus)
+    # dicts = (obsv2idx, idx2obsv, hide2idx, idx2hide)
+    # save_dicts(dicts, "hmm_para")
+
+    # builder = HmmMatBuilder(idxed_corpus, len(obsv2idx.keys()),len(hide2idx.keys()))
+    # builder.build()
+    # builder.save("hmm_para")
+
+    obsv2idx, idx2obsv, hide2idx, idx2hide = load_dicts("hmm_para")
+    builder = HmmMatBuilder()
+    builder.load("hmm_para")
 
     hmm = Hmm()
-    hmm.setup(builder.sp_mat, builder.tp_mat, builder.ep_mat, len(obsv2idx.keys()),len(hide2idx.keys()))
+    hmm.setup(builder.sp_mat, builder.tp_mat, builder.ep_mat, builder.num_obsv, builder.num_hide)
 
     seq = ['19980101-01-001-002','中共中央','总书记', '、', '国家', '主席', '江', '泽民']
     idxed_seq = [obsv2idx[word] for word in seq]
