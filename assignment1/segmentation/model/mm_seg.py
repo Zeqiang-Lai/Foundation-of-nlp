@@ -1,26 +1,15 @@
 #coding=utf-8
 
-import dict_generator
+from . import dict_generator
 
 class MMSeg:
-    """ 基于最大匹配法(Maximum Matching)的中文分词器.
+    """ 基于最大匹配法(Maximum Matching)的中文分词器. """
+    def __init__(self):
+        self.dict = None
 
-        必须提供词典路径,词典的编码方式.词典必须为json格式,且key值为词语.
-        默认的词典加载方式为按需加载,可以使用下列函数手动加载.
-        ```
-        load_dict()
-        ```
-    """
-    def __init__(self, dict_path, dict_encoding):
-        self.dict_path = dict_path
-        self.dict_encoding = dict_encoding
-        self.corpus_dict = None
-
-    def load_dict(self):
-        """ 手动加载初始化时提供的词典.
-        """
-        self.corpus_dict = dict_generator.json_read(self.dict_path, 
-                                                    encoding=self.dict_encoding)
+    def set_dict(self, mdict):
+        """ 设置词典. """
+        self.dict = mdict
 
     def cut(self, sent, mode='fmm'):
         """ 切分给定字符串,返回切分结果.
@@ -45,7 +34,7 @@ class MMSeg:
     def __fmm_cut(self, sent):
         """ 使用fmm(正向最大匹配算法)切分句子
         """
-        if(self.corpus_dict == None):
+        if(self.dict == None):
             self.load_dict()
 
         result = []
@@ -53,7 +42,7 @@ class MMSeg:
         i, j = 0, len(sent)
         while i <= len(sent)-1:
             while i+1 < j:
-                if(sent[i:j] in self.corpus_dict.keys()):
+                if(sent[i:j] in self.dict.keys()):
                     break
                 else:
                     j -= 1
@@ -79,9 +68,15 @@ class MMSeg:
         
 if __name__ == '__main__':
     s = "本报南昌讯记者鄢卫华报道：１７日上午，由本报和圣象·康树联合主办的瓦尔德内尔挑战赛在南昌圆满落幕。"
+    
     print("原始句子:" + s + "\n")
 
-    seg = MMSeg("dicts/dict.json", 'utf-16')
+    # mdict = dict_generator.json_read("dicts/shanxi_dict.json", encoding='utf-16')
+    mdict = dict_generator.load_sogou_dict('datasets/SogouLabDic.dic')
+
+    seg = MMSeg()
+    seg.set_dict(mdict)
+
     # FMM前向算法测试
     print("----- FMM前向算法分词结果 -----")
     for word in seg.cut(s, mode='fmm'):

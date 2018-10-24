@@ -44,14 +44,25 @@ def generate_dict(corpus_path, encoding='utf-16', verbose=True):
 
                 if(count % 10000 == 0):
                     print("Found {0} words.".format(count))
-
+        corpus_dict['_t_'] = count
         print("Finished. Total number of words: {0}".format(count))
-    
+        
     return corpus_dict
 
 def generate_dict_multi_source(corpus_directory, verbose=True):
     # TODO: 从千万级词表中建立词典
     pass
+
+def load_sogou_dict(file_path, encoding='gb18030'):
+    """ 读取搜狗词典 """
+    d = {}
+    d['_t_'] = 0
+    with open(file_path, 'r', encoding=encoding) as f:
+        for line in f.readlines():
+            word, freq = line.strip().split('\t')[:2]
+            d['_t_'] += int(freq) + 1
+            d[word] = int(freq) + 1
+    return d
 
 if __name__ == '__main__':
     
@@ -71,3 +82,4 @@ if __name__ == '__main__':
         count += 1 
         if count == 50:
             break
+            

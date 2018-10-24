@@ -1,7 +1,5 @@
 # coding=utf-8
 
-from mm_seg import MMSeg
-
 def precision(pred, std):
     """ 求分词结果的正确率
 
@@ -70,24 +68,16 @@ if __name__ == '__main__':
     # parser.add_argument('--encoding', default='utf-16')
     # args = parser.parse_args()
 
-    mmseg = MMSeg("dicts/pku_dict.json", 'utf-16')
-
     pred = []
     with open("datasets/icwb2-data/testing/pku_test.utf8", "r", encoding='utf-8') as f:
-        for sent in f.readlines():
-            pred.append(mmseg.cut(sent))
+        lines = f.readlines()
+        for sent in lines:
+            pred.append(seg.cut(sent))
 
     std = []
     with open("datasets/icwb2-data/gold/pku_test_gold.utf8", "r", encoding='utf-8') as f:
         for sent in f.readlines():
             std.append(sent.strip().split())
-
-    # 保存分词结果
-    with open("pku_pred.txt", "w", encoding='gb2312') as f:
-        for words in pred:
-            s = " ".join(words)
-            s.encode('gb2312',errors='ignore')
-            f.write(s)
 
     print("Precision: {0}.".format(precision(pred, std)))
     print("Recall: {0}.".format(recall(pred, std)))
