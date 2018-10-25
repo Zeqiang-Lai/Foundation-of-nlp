@@ -2,7 +2,7 @@
 
 import numpy as np
 import os
-import utilities
+# import utilities
 import pickle
 
 class Hmm:
@@ -194,6 +194,43 @@ def load_dicts(path):
         idx2hide = pickle.load(f)
 
     return obsv2idx, idx2obsv, hide2idx, idx2hide
+
+class BaseHmmTagger:
+    """ 基于隐式马尔可夫模型的序列标注基类 """
+    def __init__(self):
+        self.builder = None
+        self.hmm = None
+
+    def train(self, corpus):
+        """ 根据数据集构建隐式马尔可夫模型.
+
+            可能耗费较长时间.
+        """
+        idxed_corpus, (self.obsv2idx, self.idx2obsv), (self.hide2idx, self.idx2hide) = index_corpus(corpus)
+        self.builder = HmmMatBuilder(idxed_corpus, 
+                                         len(self.obsv2idx.keys()),
+                                         len(self.hide2idx.keys()))
+        self.builder.build()
+
+        self.hmm = Hmm()
+        self.hmm.setup(self.builder.sp_mat, self.builder.tp_mat, self.builder.ep_mat, 
+                       self.builder.num_obsv, self.builder.num_hide)
+
+    def load(self, path):
+        """ 加载模型 """
+        self.obsv2idx, self.idx2obsv, self.hide2idx, self.idx2hide = load_dicts(path)
+        self.builder = HmmMatBuilder()
+        self.builder.load(path)
+
+        self.hmm = Hmm()
+        self.hmm.setup(self.builder.sp_mat, self.builder.tp_mat, self.builder.ep_mat, 
+                       self.builder.num_obsv, self.builder.num_hide)
+
+    def save(self, path):
+        """ 保存模型 """
+        self.builder.save(path)
+        dicts = (self.obsv2idx, self.idx2obsv, self.hide2idx, self.idx2hide)
+        save_dicts(dicts, path)
 
 if __name__ == '__main__':
     # corpus_path = 'datasets/199801.txt'
