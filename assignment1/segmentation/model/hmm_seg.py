@@ -18,8 +18,11 @@ class HmmSeg(hmm.BaseHmmTagger):
         """
         if self.hmm == None:
             raise Exception("You have to train or load model before tagging.")
+
+        sentence = sentence.strip()
+        
         tags = []
-        idxed_seq = [self.obsv2idx[obsv] for obsv in sentence]
+        idxed_seq = [self.obsv2idx[obsv] if obsv in self.obsv2idx.keys() else 0 for obsv in sentence]
         idxed_tag = self.hmm.find_hidden_state(idxed_seq)
         tags = [self.idx2hide[idx] for idx in idxed_tag]
 
@@ -62,15 +65,15 @@ def process_corpus(path, encoding):
 
 if __name__ == '__main__':
     script_dir = os.path.dirname(__file__)
-    corpus_path = os.path.join(script_dir, 'datasets/shanxi/train.txt')
-    corpus = process_corpus(corpus_path, encoding='utf-16')
+    # corpus_path = os.path.join(script_dir, 'datasets/icwb2-data/training/pku_training.utf8')
+    # corpus = process_corpus(corpus_path, encoding='utf-8')
 
     seg = HmmSeg()
     # seg.train(corpus)
     model_path = os.path.join(script_dir, "hmm_para")
     # seg.save(model_path)
     seg.load(model_path)
-    s = "专访老瓦：可能参加北京奥运中国领先不是悲剧２００７年０６月１８日１４：５２大江网。"
+    s = "专访老瓦：可能参加北京奥运中国领先不是悲剧２００７年０６月１８日１４：５２大江网."
     words = seg.cut(s)
     print("/".join(words))
     
