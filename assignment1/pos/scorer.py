@@ -1,5 +1,6 @@
 # coding=utf-8
-from hmm import *
+from hmm_tagger import HmmTagger
+import utilities
 
 def precision(preds, golds):
     """ 求词性标注的准确率 """
@@ -14,26 +15,23 @@ def precision(preds, golds):
     return float(correct) / total_count
 
 if __name__ == '__main__':
-    corpus_path = 'datasets/199801.txt'
-    corpus = utilities.load_renmin(corpus_path)
-    idxed_corpus, (obsv2idx, idx2obsv), (hide2idx, idx2hide) = utilities.index_corpus(corpus)
-    builder = HmmMatBuilder(idxed_corpus, len(obsv2idx.keys()),len(hide2idx.keys()))
-    builder.build()
-
-    hmm = Hmm()
-    hmm.setup(builder.sp_mat, builder.tp_mat, builder.ep_mat, len(obsv2idx.keys()),len(hide2idx.keys()))
+    corpus = utilities.load_renmin('datasets/199801.txt')
+    tagger = HmmTagger()
+    # tagger.train(corpus)
+    # tagger.save("hmm_para")
+    tagger.load("hmm_para")
 
     preds = []
     golds = []
 
     count = 0
-    total_sent = len(idxed_corpus)
-    for sent in idxed_corpus:
+    total_sent = len(corpus)
+    for sent in corpus:
         words = [pair[0] for pair in sent]
         tags = [pair[1] for pair in sent]
 
         if len(words) <= 0: continue
-        pred = hmm.find_hidden_state(words)
+        pred = tagger.tag(words)
     
         preds.append(pred)
         golds.append(tags)
