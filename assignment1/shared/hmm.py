@@ -4,6 +4,7 @@ import numpy as np
 import os
 # import utilities
 import pickle
+from . import smooths
 
 class Hmm:
     """ 通用隐式马尔可夫模型.
@@ -90,9 +91,11 @@ class HmmMatBuilder():
             self.tp_mat = None
             self.ep_mat = None
 
-    def build(self):
+    def build(self, smooth='add1'):
         """ 构建初始概率矩阵,转移概率矩阵以及发射概率矩阵.
         """
+        if smooth not in ['add1', 'gt']:
+            raise ValueError("Invalid value for smooth, only accept 'add1' and 'gt'.")
         for seq in self.corpus:
             for i in range(len(seq)):
                 obsv_cur, hide_cur = seq[i]
@@ -106,13 +109,18 @@ class HmmMatBuilder():
                 self.ep_mat[obsv_cur, hide_cur] += 1
 
         # 加1平滑
-        self.sp_mat += 1
-        self.tp_mat += 1
-        self.ep_mat += 1
+        if smooth == 'add1':
+            self.sp_mat += 1
+            self.tp_mat += 1
+            self.ep_mat += 1
 
-        self.sp_mat /= self.sp_mat.sum()
-        self.tp_mat /= self.tp_mat.sum(axis=1)[:,None]
-        self.ep_mat /= self.ep_mat.sum(axis=1)[:,None]
+            self.sp_mat /= self.sp_mat.sum()
+            self.tp_mat /= self.tp_mat.sum(axis=1)[:,None]
+            self.ep_mat /= self.ep_mat.sum(axis=1)[:,None]
+        else:
+            self.sp_mat = smooths.simple_good_turing1d(self.sp_mat)
+            self.tp_mat = smooths.simple_good_turing2d(self.tp_mat)
+            self.ep_mat = smooths.simple_good_turing2d(self.ep_mat)
 
         # self.sp_mat *= 1e3
         # self.tp_mat *= 1e3
@@ -201,7 +209,7 @@ class BaseHmmTagger:
         self.builder = None
         self.hmm = None
 
-    def train(self, corpus):
+    def train(self, corpus, smooth='add1'):
         """ 根据数据集构建隐式马尔可夫模型.
 
             可能耗费较长时间.
@@ -210,7 +218,7 @@ class BaseHmmTagger:
         self.builder = HmmMatBuilder(idxed_corpus, 
                                          len(self.obsv2idx.keys()),
                                          len(self.hide2idx.keys()))
-        self.builder.build()
+        self.builder.build(smooth)
 
         self.hmm = Hmm()
         self.hmm.setup(self.builder.sp_mat, self.builder.tp_mat, self.builder.ep_mat, 

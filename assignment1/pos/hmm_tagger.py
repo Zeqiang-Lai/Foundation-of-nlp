@@ -27,14 +27,18 @@ class HmmTagger(hmm.BaseHmmTagger):
         return tags       
 
 if __name__ == '__main__':
+    # Training phase
     script_dir = os.path.dirname(__file__)
     corpus_path = os.path.join(script_dir, 'datasets/199801.txt')
     corpus = utilities.load_renmin(corpus_path)
     tagger = HmmTagger()
-    # tagger.train(corpus)
-    # tagger.save("hmm_para")
-    model_path = os.path.join(script_dir, "hmm_para")
-    tagger.load(model_path)
+    tagger.train(corpus,smooth='gt')
+    tagger.save("hmm_para")
+
+    # Load model if trained.
+    # model_path = os.path.join(script_dir, "hmm_para")
+    # tagger.load(model_path)
+
     seq = ['19980101-01-001-002','中共中央','总书记', '、', '国家', '主席', '江', '泽民']
     tags = tagger.tag(seq)   
     print(" ".join(tags))
