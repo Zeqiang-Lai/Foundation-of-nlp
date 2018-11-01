@@ -1,6 +1,6 @@
 #coding=utf-8
 
-from . import dict_generator
+import dict_generator
 
 class MMSeg:
     """ 基于最大匹配法(Maximum Matching)的中文分词器. """
@@ -34,9 +34,6 @@ class MMSeg:
     def __fmm_cut(self, sent):
         """ 使用fmm(正向最大匹配算法)切分句子
         """
-        if(self.dict == None):
-            self.load_dict()
-
         result = []
 
         i, j = 0, len(sent)
@@ -56,15 +53,84 @@ class MMSeg:
         """ 使用bmm(反向最大匹配算法)切分句子
         """
         result = []
-        # TODO: backward
+        self.max_len_in_dict = self.__biggest_len(self.dict)
+        #print(max_len)
+        if(self.max_len_in_dict > len(sent)):
+            max_len = len(sent)
+        else:
+            max_len = self.max_len_in_dict
+        
+        i, j = len(sent) - max_len, len(sent)
+        while j > 0:
+            while i+1 < j:
+                if(sent[i:j] in self.dict.keys() or self.__is_date_or_number(sent[i:j])):
+                    break
+                else:
+                    i += 1
+            result.append(sent[i:j])
+            j = i
+            i = i - max_len
+        #print(max_len)
+        result.reverse()
+
         return result
 
     def __bimm_cut(self, sent):
         """ 使用bi-mm(双向最大匹配算法)切分句子
         """
-        result = []
-        # TODO: bidirectional
-        return result
+        fmm_list = self.__bmm_cut(sent)
+        bmm_list = self.__fmm_cut(sent)
+
+        if(len(fmm_list) != len(bmm_list)):
+            if(len(fmm_list) < len(bmm_list)):
+                return fmm_list
+            else:
+                return bmm_list
+                
+        else:
+            FSingle = 0
+            BSingle = 0
+            for i in range(len(fmm_list)):
+                if(len(fmm_list[i]) == 1):
+                    FSingle += 1
+                if(len(bmm_list[i]) == 1):
+                    BSingle += 1
+            if(fmm_list == bmm_list):
+                self.count += 1
+                return fmm_list
+            else:
+                if(BSingle > FSingle):
+                    return fmm_list
+                else:
+                    return bmm_list
+
+    def __is_date_or_number(self, string):
+        '''判断一个字符串是否为数字或者日期
+        '''
+        length = len(string)
+        if(length < 2):
+            return 0
+        #print(length)
+        
+        if(string.isdigit()):
+            return 1
+        elif((string[length-1]=='年' or string[length-1]=='月' or string[length-1]=='日'or string[length-1]=='时'
+              or string[length-1]=='分') and string[0:length-2].isdigit()):
+            return 1
+        elif(length == 2 and(string[length-1]=='年' or string[length-1]=='月' or string[length-1]=='日'
+                or string[length-1]=='时' or string[length-1]=='分') and string[0].isdigit()):
+            return 1
+        else:
+            return 0
+
+    def __biggest_len(self, corpus_dict):
+        dict_list = list(corpus_dict.keys())
+        max = 0
+        for i in range(len(dict_list)):
+            if max < len(dict_list[i]):
+                max = len(dict_list[i])
+
+        return max
         
 if __name__ == '__main__':
     s = "本报南昌讯记者鄢卫华报道：１７日上午，由本报和圣象·康树联合主办的瓦尔德内尔挑战赛在南昌圆满落幕。"
