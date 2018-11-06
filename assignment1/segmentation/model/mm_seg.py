@@ -1,6 +1,6 @@
 #coding=utf-8
 
-import dict_generator
+from . import dict_generator
 
 class MMSeg:
     """ 基于最大匹配法(Maximum Matching)的中文分词器. """
@@ -41,6 +41,8 @@ class MMSeg:
             while i+1 < j:
                 if(sent[i:j] in self.dict.keys()):
                     break
+                elif self.__is_date_or_number(sent[i:j]):
+                    break
                 else:
                     j -= 1
             result.append(sent[i:j])
@@ -54,7 +56,7 @@ class MMSeg:
         """
         result = []
         self.max_len_in_dict = self.__biggest_len(self.dict)
-        #print(max_len)
+
         if(self.max_len_in_dict > len(sent)):
             max_len = len(sent)
         else:
@@ -63,14 +65,16 @@ class MMSeg:
         i, j = len(sent) - max_len, len(sent)
         while j > 0:
             while i+1 < j:
-                if(sent[i:j] in self.dict.keys() or self.__is_date_or_number(sent[i:j])):
+                if(sent[i:j] in self.dict.keys()):
+                    break
+                elif self.__is_date_or_number(sent[i:j]):
                     break
                 else:
                     i += 1
             result.append(sent[i:j])
             j = i
             i = i - max_len
-        #print(max_len)
+
         result.reverse()
 
         return result
@@ -96,7 +100,6 @@ class MMSeg:
                 if(len(bmm_list[i]) == 1):
                     BSingle += 1
             if(fmm_list == bmm_list):
-                self.count += 1
                 return fmm_list
             else:
                 if(BSingle > FSingle):
