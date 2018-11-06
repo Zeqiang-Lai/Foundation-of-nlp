@@ -74,13 +74,49 @@ class UniGramSeg:
         # print(x)
         if x in self.dict:
             return self.dict[x] 
-        elif self.__is_date_or_number(x):
+        elif self.__is_date_or_number(x) or self.__special_string_handle(x):
             return max(self.dict.values()) / len(self.dict)
         elif len(x)>1:  
             return 0  # 不是单字的没有概率
         else:
             return 1  # 单字的不在词典的话有1
 
+    def __judge_string(self, check_str):
+        for ch in check_str:
+            if('a' <= ch <= 'z' or 'A'<= ch <= 'Z' or '0'<= ch <='9' or ch =='％' or ch =='．'or ch == '@'or ch =='.'):
+                continue
+            else:
+                return 0
+                break
+        return 1
+
+    def __special_string_handle(self, string):
+        '''判断一个字符串是否为特殊情况
+        '''
+        list1 = ['月','日','时','分']
+        list2 = ['亿','万']
+        length = len(string)
+        if(length < 2):
+            return 0
+        #print(length)
+
+        #不包含中文和℃的情况
+        if(self.__judge_string(string) == 1):
+            return 1
+        #日期的情况 其中得派出并不是指时间的年 例如“过去了90年” 长度的判断 需要分开写
+        elif(string[length-1] == '年' and length >= 5 and string[0:length-2].isdigit()):
+            return 1
+        elif(string[length-1] in list1 and string[0:length-2].isdigit()):
+            return 1
+        elif(length == 2 and string[length-1] in list1 and string[0].isdigit()):
+            return 1
+        #数量单位的处理“亿” “万” “万亿”
+        elif(string[length-1] in list2 and self.__judge_string(string[0:length-2]) == 1):
+            return 1
+        elif(length >= 3 and string[length-2:length-3] == '万亿' and self.__judge(string[0:length-2]) == 1):
+            return 1
+        else:
+            return 0
     
 
 if __name__ == '__main__':
