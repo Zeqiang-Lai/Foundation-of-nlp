@@ -26,6 +26,8 @@ class HmmSeg(hmm.BaseHmmTagger):
         idxed_tag = self.hmm.find_hidden_state(idxed_seq)
         tags = [self.idx2hide[idx] for idx in idxed_tag]
 
+        assert len(sentence) == len(tags), "标记与句子长度不一致"
+
         # 由tag还原回词
         words = []
         lo, hi = 0, 0
@@ -38,6 +40,13 @@ class HmmSeg(hmm.BaseHmmTagger):
             elif tags[i] == 'S':
                 words.append(sentence[i:i+1])
 
+        if tags[-1] == 'B':
+            words.append(sentence[-1])  # 处理 SB,EB
+        elif tags[-1] == 'M':
+            words.append(sentence[lo:-1])
+        
+        assert len(sentence) == len("".join(words)), "还原失败,长度不一致"
+        
         return words 
 
 def process_corpus(path, encoding):
