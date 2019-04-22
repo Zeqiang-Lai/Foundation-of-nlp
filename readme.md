@@ -22,16 +22,17 @@ cd assignment1/segmentation
 
 python3 dict_generator.py --corpus_path datasets/train.txt --dict_path dicts/dict.json --encoding utf-8
 ```
+python3 dict_generator.py --corpus_path datasets/icwb2-data/training/pku_training.utf8 --dict_path dicts/pku_dict.json --encodi
+ng utf-8
 
 **使用评测器**
 
-
-### 待办事项
-
-- [ ] mm_seg.py: 最大匹配后向算法 
-- [ ] mm_seg.py: 最大匹配双向算法
-- [ ] scorer.py: 正确性检查
-- [ ] dict_generator.py: 千万级词典的生成
+　以下利用其自带的中文分词工具进行说明。在scripts目录里包含一个基于最大匹配法的中文分词器mwseg.pl，以北京大学提供的人民日报语料库为例，用法如下：
+　　./mwseg.pl ../gold/pku_training_words.txt < ../testing/pku_test.txt > pku_test_seg.txt
+　　其中第一个参数需提供一个词表文件pku_training_word.txt，输入为pku_test.txt，输出为pku_test_seg.txt。
+　　利用score评分的命令如下：
+　　./score ../gold/pku_training_words.txt ../gold/pku_test_gold.txt pku_hmm_seg.txt > score.txt
+　　其中前三个参数已介绍，而score.txt则包含了详细的评分结果，不仅有总的评分结果，还包括每一句的对比结果。这里只看最后的总评结果：
 
 ### 选做: 命名实体识别
 
@@ -58,3 +59,47 @@ UnicodeDecodeError: 'gb2312' codec can't decode byte 0xe9 in position 7524: ille
 ```
 
 改为使用`gbk`编码进行解码，则能够正确读取。
+
+3. 搜狗词典的编码问题
+
+通过文本编辑器查看`SogouLabDic.dic`的编码时，其显示为`gb2312`,但在python中使用该编码进行读取会出现如下错误
+```
+UnicodeDecodeError: 'gb2312' codec can't decode byte 0xb2 in position 6549: illegal multibyte sequence
+```
+改用`gbk`进行读取仍然报错
+```
+UnicodeDecodeError: 'gbk' codec can't decode byte 0xfa in position 799: illegal multibyte sequence
+```
+通过一阵google,终于在知乎上找到了这个问题的[解决方法](https://www.zhihu.com/question/36368902)。
+使用gbk的超集gb18030尝试,解码成功！
+
+# Reference
+## Survey
+http://www.isnowfy.com/introduction-to-chinese-segmentation/
+https://datartisan.gitbooks.io/begining-text-mining-with-python/content/第4章%20分词与词性标注/4.1%20中文分词及词性标注.html
+
+## 分词
+https://applenob.github.io/statistics_seg.html
+http://www.isnowfy.com/python-chinese-segmentation/
+http://www.isnowfy.com/introduction-to-chinese-segmentation/
+http://www.isnowfy.com/analysis-of-chinese-segmentaion/
+
+最大匹配法分词:
+双向: https://blog.csdn.net/PKU_ZZY/article/details/54730972
+
+HMM分词:
+https://blog.csdn.net/PKU_ZZY/article/details/56479627
+
+jieba:
+http://www.cnblogs.com/zhbzz2007/p/6092313.html
+
+uni-gram:
+http://www.isnowfy.com/python-chinese-segmentation/
+https://applenob.github.io/statistics_seg.html
+
+感知机: 
+https://github.com/hankcs/HanLP/wiki/结构化感知机标注框架
+## 词性标注
+https://heshenghuan.github.io/2016/03/23/词性标注调研/
+HMM:
+https://blog.csdn.net/rm_wang/article/details/50838243

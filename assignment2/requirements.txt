@@ -1,0 +1,5 @@
+kenlm
+numpy
+jieba
+flask
+flask_cors

@@ -1,0 +1,90 @@
+.api-pre {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+
+    font-family: monospace;
+    margin: 0 0 0px;
+    font-size: 15px;
+    line-height: normal;
+    color: #333;
+    word-break: break-all;
+    word-wrap: normal;
+    background-color: transparent;
+    border: 0;
+    border-radius: 0px;
+    overflow: auto;
+    padding-top: 10px;
+    padding: 0;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  margin: auto;
+}
+
+.e {
+  display: inline-block; 
+  color:brown; 
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.e:hover{
+  background-color:#fFff00;
+}
+
+.mbtn{
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  color: #007bff;
+  background-color: transparent;
+  background-image: none;
+  border: 1px solid #007bff;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.mbtn:hover{
+  color: white;
+  background-color: #007bff;
+}
+
+.double-bounce1, .double-bounce2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #333;
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: sk-bounce 2.0s infinite ease-in-out;
+}
+
+.double-bounce2 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+@-webkit-keyframes sk-bounce {
+  0%, 100% { -webkit-transform: scale(0.0) }
+  50% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bounce {
+  0%, 100% {
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+  } 50% {
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+  }
+}

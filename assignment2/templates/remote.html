@@ -1,0 +1,98 @@
+
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel="stylesheet" href= "{{ url_for('static',filename='styles/custom.css') }}">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+</head>
+
+
+<body>
+    <div class="container col-lg-6 ">
+        <div style="padding-bottom: 0.5cm">
+            <div class="card">
+                <div class="card-body text-center" style="padding-bottom: 0.2cm">
+                    <textarea class="card-title form-control" type="text" rows="5" id="input" name="input" placeholder="Input sentence"/>化夏子孙团结一心。&#10;机七学习是人工智能领遇最能体现智能的一个分知。&#10;讲台上放着一只漂亮的刚笔。&#10;冬冬今天戴来了一本好看的童话书&#10;少先队员因该给老人让坐</textarea>
+                    
+                    <button class="card-text mbtn" id="btn">开始校对</button>
+
+                    <div class="spinner" id="spinner" style="display: none">
+                      <div class="double-bounce1"></div>
+                      <div class="double-bounce2"></div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white" id='output'>
+                    <div class='e' title="修正候选"
+                    data-container="body" data-toggle="popover" data-placement="bottom"  data-html="true"
+                    data-content="华夏<br>化处<br>化钾<br>化夏">化夏</div>子孙团结一心。
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script type="text/javascript">
+    $(function (){
+            $("[data-toggle='popover']").popover({
+            });
+        });
+    $('html').on('click', function(e) {
+            if (typeof $(e.target).data('original-title') == 'undefined' && !$(e.target).parents().is('.popover.in')) {
+                $('[data-original-title]').popover('hide');
+            }
+        });
+    function api_call(input) {
+        // hide button and make the spinner appear
+        $('#btn').toggle();
+        $('#spinner').toggle();
+
+        $.ajax({
+            url: "http://10.108.16.157:5000/api",
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(input),
+
+            success: function( data, textStatus, jQxhr ){
+                // toggle the spinner and button
+                $('#btn').toggle();
+                $('#spinner').toggle();
+
+                // fill the html for answer
+                $('#output').html( data.output );
+                $(function (){
+                    $("[data-toggle='popover']").popover({
+                       
+                    });
+                });
+            },
+            error: function( jqXhr, textStatus, errorThrown ){
+                $('#btn').toggle();
+                $('#spinner').toggle();
+
+                $('#output').html( "Try again in a moment!" );
+
+                console.log( errorThrown );
+            },
+            timeout: 3000 // sets timeout to 10 seconds
+        });
+
+    }
+
+
+    $( document ).ready(function() {
+        // request when clicking on the button
+        $('#btn').click(function() {
+            // get the input data
+            var input = $("#input").val();
+            api_call(input);
+            input = "";
+    });
+    });
+
+</script>
