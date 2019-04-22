@@ -21,7 +21,7 @@ class HmmTagger(hmm.BaseHmmTagger):
         if self.hmm == None:
             raise Exception("You have to train or load model before tagging.")
         tags = []
-        idxed_seq = [self.obsv2idx[obsv] for obsv in sentence]
+        idxed_seq = [self.obsv2idx[obsv] if obsv in self.obsv2idx.keys() else 0 for obsv in sentence]
         idxed_tag = self.hmm.find_hidden_state(idxed_seq)
         tags = [self.idx2hide[idx] for idx in idxed_tag]
         return tags       
@@ -31,8 +31,9 @@ if __name__ == '__main__':
     script_dir = os.path.dirname(__file__)
     corpus_path = os.path.join(script_dir, 'datasets/199801.txt')
     corpus = utilities.load_renmin(corpus_path)
+    total_sent = len(corpus)
     tagger = HmmTagger()
-    tagger.train(corpus,smooth='gt')
+    tagger.train(corpus,smooth='add1')
     tagger.save("hmm_para")
 
     # Load model if trained.

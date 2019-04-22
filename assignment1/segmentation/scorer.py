@@ -1,4 +1,5 @@
 # coding=utf-8
+import argparse
 
 def precision(pred, std):
     """ 求分词结果的正确率
@@ -56,26 +57,23 @@ def f1_score(pred, std):
     rec = recall(pred, std)
 
     return 2.0 * prec * rec / (prec + rec)
-
-def sanity_check():
-    # TODO: 检查上面三个函数的正确性 
-    pass
  
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--test_path', default='datasets/shanxi/train.txt')
-    # parser.add_argument('--gold_path', default='dicts/shanxi_dict.json')
-    # parser.add_argument('--encoding', default='utf-16')
-    # args = parser.parse_args()
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--pred_path', default='test_data/shanxi/unigram_seg.txt')
+    parser.add_argument('--gold_path', default='test_data/shanxi/gold.txt')
+    parser.add_argument('--pred_encoding', default='gb18030')
+    parser.add_argument('--gold_encoding', default='utf-16')
+    args = parser.parse_args()
+    
     pred = []
-    with open("datasets/icwb2-data/testing/pku_test.utf8", "r", encoding='utf-8') as f:
+    with open(args.pred_path, "r", encoding=args.pred_encoding) as f:
         lines = f.readlines()
         for sent in lines:
-            pred.append(seg.cut(sent))
+            pred.append(sent.strip().split())
 
     std = []
-    with open("datasets/icwb2-data/gold/pku_test_gold.utf8", "r", encoding='utf-8') as f:
+    with open(args.gold_path, "r", encoding=args.gold_encoding) as f:
         for sent in f.readlines():
             std.append(sent.strip().split())
 

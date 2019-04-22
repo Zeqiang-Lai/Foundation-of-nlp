@@ -1,17 +1,19 @@
 # coding=utf-8
 from . import dict_generator
 import math
+import re
 
 class UniGramSeg:
     """ 基于词典以及1-gram的中文分词器. """
     def __init__(self):
         self.dict = None
+        self.punc = ['———','、','，','。','！','：']
 
     def set_dict(self, mdict):
         """ 设置词典. """
         self.dict = mdict
     
-    def cut(self, sent, smooth='good_turing'):
+    def cut(self, sent, smooth='add1'):
         """ 切分给定字符串,返回切分结果.
 
             Args:
@@ -24,12 +26,27 @@ class UniGramSeg:
         if(smooth not in ['good_turing', 'add1']):
             raise ValueError("invalid value for smooth, only accept good_turing', 'plus1'")
 
-        if(smooth == 'good_turing'):
-            return self.__cut(sent)
+        if(smooth == 'add1'):
+            words = []
+            sents = self.__shorten_sent(sent.strip())
+            for s in sents:
+                if s in self.punc:
+                    words += s
+                elif s == '':
+                    continue
+                else:
+                    words.extend(self.__cut(s))
+            return words
         else:
-           return self.__cut(sent)   
+           raise NotImplementedError() 
+
+    def __shorten_sent(self, sent):
+        pattern = r'(' + "|".join(self.punc) + r')'
+        return re.split(pattern, sent)
 
     def __cut(self, sent):
+
+        sent = sent.strip()
 
         log = lambda x: float('-inf') if not x else math.log(x)
         # freq = lambda x: self.dict[x] if x in self.dict else 0 if len(x)>1 else 1  # 计算每个词的频次（加入平滑）
@@ -128,5 +145,5 @@ if __name__ == '__main__':
     seg.set_dict(mdict)
     
     words = seg.cut(s)
-
+    # print(words)
     print("/".join(words))

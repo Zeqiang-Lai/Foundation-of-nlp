@@ -151,9 +151,9 @@ def index_corpus(corpus):
           (obsv2idx, idx2obsv): 两个dict用于观察值与其编码之间的转换
           (hide2idx, idx2hide): 两个dict用于隐藏值与其编码之间的转换
     """
-    obsv2idx, idx2obsv = {}, {}
+    obsv2idx, idx2obsv = {'unk': 0}, {0: 'unk'}
     hide2idx, idx2hide = {}, {}
-    obsv_idx, hide_idx = 0, 0 
+    obsv_idx, hide_idx = 1, 0
 
     # build dictionaries and indexing
     idxed_corpus = []
@@ -241,15 +241,15 @@ class BaseHmmTagger:
         save_dicts(dicts, path)
 
 if __name__ == '__main__':
-    # corpus_path = 'datasets/199801.txt'
-    # corpus = utilities.load_renmin(corpus_path)
-    # idxed_corpus, (obsv2idx, idx2obsv), (hide2idx, idx2hide) = index_corpus(corpus)
-    # dicts = (obsv2idx, idx2obsv, hide2idx, idx2hide)
-    # save_dicts(dicts, "hmm_para")
+    corpus_path = 'datasets/199801.txt'
+    corpus = utilities.load_renmin(corpus_path)
+    idxed_corpus, (obsv2idx, idx2obsv), (hide2idx, idx2hide) = index_corpus(corpus)
+    dicts = (obsv2idx, idx2obsv, hide2idx, idx2hide)
+    save_dicts(dicts, "hmm_para")
 
-    # builder = HmmMatBuilder(idxed_corpus, len(obsv2idx.keys()),len(hide2idx.keys()))
-    # builder.build()
-    # builder.save("hmm_para")
+    builder = HmmMatBuilder(idxed_corpus, len(obsv2idx.keys()),len(hide2idx.keys()))
+    builder.build()
+    builder.save("hmm_para")
 
     obsv2idx, idx2obsv, hide2idx, idx2hide = load_dicts("hmm_para")
     builder = HmmMatBuilder()

@@ -45,7 +45,7 @@ class HmmSeg(hmm.BaseHmmTagger):
         elif tags[-1] == 'M':
             words.append(sentence[lo:-1])
         
-        assert len(sentence) == len("".join(words)), "还原失败,长度不一致"
+        assert len(sentence) == len("".join(words)), "还原失败,长度不一致\n{0}\n{1}\n{2}".format(sentence,"".join(words), "".join(tags))
         
         return words 
 
@@ -74,14 +74,14 @@ def process_corpus(path, encoding):
 
 if __name__ == '__main__':
     script_dir = os.path.dirname(__file__)
-    # corpus_path = os.path.join(script_dir, 'datasets/icwb2-data/training/pku_training.utf8')
-    # corpus = process_corpus(corpus_path, encoding='utf-8')
+    corpus_path = os.path.join(script_dir, 'datasets/shanxi/train.txt')
+    corpus = process_corpus(corpus_path, encoding='utf-16')
 
     seg = HmmSeg()
-    # seg.train(corpus)
-    model_path = os.path.join(script_dir, "hmm_para")
-    # seg.save(model_path)
-    seg.load(model_path)
+    seg.train(corpus)
+    model_path = os.path.join(script_dir, "sx_hmm_para")
+    seg.save(model_path)
+    # seg.load(model_path)
     s = "专访老瓦：可能参加北京奥运中国领先不是悲剧２００７年０６月１８日１４：５２大江网."
     words = seg.cut(s)
     print("/".join(words))

@@ -25,6 +25,7 @@ def simple_good_turing2d(dict_matrix):
 
       #计算新的矩阵数据，需要的参数 n, N, N1, n1
       N = fre_num_dict[0]
+
       for p in range(dict_len):
          if(temp_list[p][0] <= 0):
             continue

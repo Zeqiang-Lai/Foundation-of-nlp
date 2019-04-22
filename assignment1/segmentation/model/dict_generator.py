@@ -49,10 +49,6 @@ def generate_dict(corpus_path, encoding='utf-16', verbose=True):
         
     return corpus_dict
 
-def generate_dict_multi_source(corpus_directory, verbose=True):
-    # TODO: 从千万级词表中建立词典
-    pass
-
 def load_sogou_dict(file_path, encoding='gb18030'):
     """ 读取搜狗词典 """
     d = {}

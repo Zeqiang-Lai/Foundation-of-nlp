@@ -5,8 +5,12 @@ assignment1/segmentation/dicts/*
 assignment1/segmentation/datasets/*
 assignment1/segmentation/model/datasets/shanxi
 assignment1/segmentation/model/datasets/icwb2-data
+assignment2/model/data/*
 __pycache__
 .idea
 .vscode
 dicts
 pku_seg
+*.bin
+assignment2/model/data/pku2.bin
+assignment2/model/data/pku3.bin
