@@ -1,6 +1,6 @@
 # 自然语言处理基础-大作业
 
-*Author: Zeqiang*
+*Author: Zeqiang、Qian Ze*
 </br>
 
 ## 大作业1: 中文分词+词性标注
